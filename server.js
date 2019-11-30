@@ -1,21 +1,35 @@
 express = require('express');
 dotenv = require('dotenv');
+morgan = require('morgan');
+
+// route files
+const tasks = require('./routes/tasks');
 
 // load env vars
-dotenv.config({path:'./config/config.env'});
+dotenv.config({
+	path: './config/config.env'
+});
 
 const app = express();
 
-app.get('/api/v1/tasks',
-	(req,res) => {
-		res.status(200).json({success:true, msg:'Show all tasks'});
-		
-	})
-app.get('/api/v1/tasks/:id',
-	(req,res) => {
-		res.status(200).json({success:true, msg:`Show task ${req.params.id}`});
-		
-	})
+
+// dev logging
+if (process.env.NODE_ENV === 'development') {
+	app.use(morgan('dev'))
+}
+const logger = (req, res, next) => {
+	req.hello = 'Hi there';
+	console.log('middlewreee');
+	next();
+}
+
+app.use(logger);
+
+// mount touters
+app.use('/api/v1/tasks', tasks);
+
+
+
 
 const PORT = process.env.PORT || 5000;
 
